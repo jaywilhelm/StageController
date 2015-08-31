@@ -27,6 +27,8 @@ namespace Stage_GUI
         }
         private string GetPort(string name)
         {
+            if (!File.Exists("props.txt"))
+                SetDefaultPorts();
             StreamReader sr;
             string props;
             try
@@ -56,9 +58,12 @@ namespace Stage_GUI
         }
         private void SavePort(string name,string newport)
         {
+            if (!File.Exists("props.txt"))
+                SetDefaultPorts();
             StreamReader sr = new StreamReader("props.txt");
             string props = sr.ReadToEnd();
             sr.Close();
+            
             StreamWriter sw = new StreamWriter("props.txt");
             string[] prefs = props.Split(';');
             foreach (string item in prefs)
@@ -83,8 +88,11 @@ namespace Stage_GUI
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             InitializeComponent();
             string[] names = SerialPort.GetPortNames();
-            //comboBoxStagePorts.Items.Add("COM1");//Debug
-            //comboBoxEFDPortNames.Items.Add("COM1");//Debug
+            /*comboBoxStagePorts.Items.Add("COM1");//Debug
+            comboBoxStagePorts.Items.Add("COM2");//Debug
+            comboBoxEFDPortNames.Items.Add("COM4");//Debug
+            comboBoxEFDPortNames.Items.Add("COM3");//Debug
+            */
             //string selectedStage = (string)Properties.Settings.Default["StagePort"];
             //string selectedEFD = (string)Properties.Settings.Default["EFDPort"];
             string selectedStage = GetPort("StagePort");
