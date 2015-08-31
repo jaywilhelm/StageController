@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.Run_Program = new System.Windows.Forms.Button();
+            this.buttonRun = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.X_move = new System.Windows.Forms.Button();
             this.inc = new System.Windows.Forms.TextBox();
@@ -46,8 +46,10 @@
             this.Speed = new System.Windows.Forms.TextBox();
             this.Reset_Stage = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.comboBoxEFDPortNames = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
-            this.comboBoxPorts = new System.Windows.Forms.ComboBox();
+            this.comboBoxStagePorts = new System.Windows.Forms.ComboBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.button3 = new System.Windows.Forms.Button();
@@ -62,19 +64,19 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(16, 55);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(56, 13);
+            this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "COM Port ";
+            this.label1.Text = "Stage Port";
             // 
-            // Run_Program
+            // buttonRun
             // 
-            this.Run_Program.Location = new System.Drawing.Point(11, 88);
-            this.Run_Program.Name = "Run_Program";
-            this.Run_Program.Size = new System.Drawing.Size(75, 23);
-            this.Run_Program.TabIndex = 11;
-            this.Run_Program.Text = "Run";
-            this.Run_Program.UseVisualStyleBackColor = true;
-            this.Run_Program.Click += new System.EventHandler(this.button2_Click);
+            this.buttonRun.Location = new System.Drawing.Point(32, 141);
+            this.buttonRun.Name = "buttonRun";
+            this.buttonRun.Size = new System.Drawing.Size(75, 23);
+            this.buttonRun.TabIndex = 11;
+            this.buttonRun.Text = "Run";
+            this.buttonRun.UseVisualStyleBackColor = true;
+            this.buttonRun.Click += new System.EventHandler(this.buttonRun_Click);
             // 
             // label6
             // 
@@ -194,7 +196,7 @@
             this.groupBox1.Controls.Add(this.Y_move_neg);
             this.groupBox1.Controls.Add(this.Y_move);
             this.groupBox1.Controls.Add(this.X_move);
-            this.groupBox1.Location = new System.Drawing.Point(7, 257);
+            this.groupBox1.Location = new System.Drawing.Point(12, 301);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(254, 212);
             this.groupBox1.TabIndex = 28;
@@ -220,7 +222,7 @@
             // 
             // Reset_Stage
             // 
-            this.Reset_Stage.Location = new System.Drawing.Point(103, 88);
+            this.Reset_Stage.Location = new System.Drawing.Point(124, 141);
             this.Reset_Stage.Name = "Reset_Stage";
             this.Reset_Stage.Size = new System.Drawing.Size(75, 23);
             this.Reset_Stage.TabIndex = 30;
@@ -230,18 +232,38 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.comboBoxEFDPortNames);
+            this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.button1);
-            this.groupBox2.Controls.Add(this.comboBoxPorts);
+            this.groupBox2.Controls.Add(this.comboBoxStagePorts);
             this.groupBox2.Controls.Add(this.Reset_Stage);
-            this.groupBox2.Controls.Add(this.Run_Program);
+            this.groupBox2.Controls.Add(this.buttonRun);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Location = new System.Drawing.Point(7, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(233, 134);
+            this.groupBox2.Size = new System.Drawing.Size(233, 189);
             this.groupBox2.TabIndex = 31;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Data Upload/Run";
+            // 
+            // comboBoxEFDPortNames
+            // 
+            this.comboBoxEFDPortNames.FormattingEnabled = true;
+            this.comboBoxEFDPortNames.Location = new System.Drawing.Point(78, 79);
+            this.comboBoxEFDPortNames.Name = "comboBoxEFDPortNames";
+            this.comboBoxEFDPortNames.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxEFDPortNames.TabIndex = 34;
+            this.comboBoxEFDPortNames.SelectedIndexChanged += new System.EventHandler(this.comboBoxEFDPortNames_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(16, 82);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(50, 13);
+            this.label2.TabIndex = 33;
+            this.label2.Text = "EFD Port";
             // 
             // button1
             // 
@@ -253,14 +275,14 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // comboBoxPorts
+            // comboBoxStagePorts
             // 
-            this.comboBoxPorts.FormattingEnabled = true;
-            this.comboBoxPorts.Location = new System.Drawing.Point(78, 52);
-            this.comboBoxPorts.Name = "comboBoxPorts";
-            this.comboBoxPorts.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxPorts.TabIndex = 31;
-            this.comboBoxPorts.SelectedIndexChanged += new System.EventHandler(this.comboBoxPorts_SelectedIndexChanged);
+            this.comboBoxStagePorts.FormattingEnabled = true;
+            this.comboBoxStagePorts.Location = new System.Drawing.Point(78, 52);
+            this.comboBoxStagePorts.Name = "comboBoxStagePorts";
+            this.comboBoxStagePorts.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxStagePorts.TabIndex = 31;
+            this.comboBoxStagePorts.SelectedIndexChanged += new System.EventHandler(this.comboBoxPorts_SelectedIndexChanged);
             // 
             // openFileDialog1
             // 
@@ -270,7 +292,7 @@
             // 
             this.groupBox3.Controls.Add(this.button3);
             this.groupBox3.Controls.Add(this.button2);
-            this.groupBox3.Location = new System.Drawing.Point(7, 157);
+            this.groupBox3.Location = new System.Drawing.Point(12, 207);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(233, 88);
             this.groupBox3.TabIndex = 36;
@@ -295,13 +317,13 @@
             this.button2.TabIndex = 36;
             this.button2.Text = "X/Y Position";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click_1);
+            this.button2.Click += new System.EventHandler(this.buttonGetXY_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(278, 476);
+            this.ClientSize = new System.Drawing.Size(278, 525);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox3);
@@ -320,7 +342,7 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button Run_Program;
+        private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button X_move;
         private System.Windows.Forms.TextBox inc;
@@ -337,12 +359,14 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button Reset_Stage;
         private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ComboBox comboBoxPorts;
+        private System.Windows.Forms.ComboBox comboBoxStagePorts;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.ComboBox comboBoxEFDPortNames;
+        private System.Windows.Forms.Label label2;
     }
 }
 
