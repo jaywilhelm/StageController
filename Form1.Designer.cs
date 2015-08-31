@@ -32,7 +32,7 @@
             this.buttonRun = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.X_move = new System.Windows.Forms.Button();
-            this.inc = new System.Windows.Forms.TextBox();
+            this.textboxInc = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.X_move_neg = new System.Windows.Forms.Button();
             this.Y_move_neg = new System.Windows.Forms.Button();
@@ -43,7 +43,7 @@
             this.label9 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label10 = new System.Windows.Forms.Label();
-            this.Speed = new System.Windows.Forms.TextBox();
+            this.textboxSpeed = new System.Windows.Forms.TextBox();
             this.Reset_Stage = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.comboBoxEFDPortNames = new System.Windows.Forms.ComboBox();
@@ -97,13 +97,13 @@
             this.X_move.UseVisualStyleBackColor = true;
             this.X_move.Click += new System.EventHandler(this.X_move_Click);
             // 
-            // inc
+            // textboxInc
             // 
-            this.inc.Location = new System.Drawing.Point(67, 31);
-            this.inc.Name = "inc";
-            this.inc.Size = new System.Drawing.Size(100, 20);
-            this.inc.TabIndex = 17;
-            this.inc.TextChanged += new System.EventHandler(this.inc_TextChanged);
+            this.textboxInc.Location = new System.Drawing.Point(67, 31);
+            this.textboxInc.Name = "textboxInc";
+            this.textboxInc.Size = new System.Drawing.Size(100, 20);
+            this.textboxInc.TabIndex = 17;
+            this.textboxInc.TextChanged += new System.EventHandler(this.inc_TextChanged);
             // 
             // label7
             // 
@@ -190,9 +190,9 @@
             this.groupBox1.Controls.Add(this.Z_move);
             this.groupBox1.Controls.Add(this.label10);
             this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.inc);
+            this.groupBox1.Controls.Add(this.textboxInc);
             this.groupBox1.Controls.Add(this.label7);
-            this.groupBox1.Controls.Add(this.Speed);
+            this.groupBox1.Controls.Add(this.textboxSpeed);
             this.groupBox1.Controls.Add(this.Y_move_neg);
             this.groupBox1.Controls.Add(this.Y_move);
             this.groupBox1.Controls.Add(this.X_move);
@@ -212,13 +212,13 @@
             this.label10.TabIndex = 1;
             this.label10.Text = "microns";
             // 
-            // Speed
+            // textboxSpeed
             // 
-            this.Speed.Location = new System.Drawing.Point(67, 64);
-            this.Speed.Name = "Speed";
-            this.Speed.Size = new System.Drawing.Size(100, 20);
-            this.Speed.TabIndex = 0;
-            this.Speed.TextChanged += new System.EventHandler(this.Speed_TextChanged);
+            this.textboxSpeed.Location = new System.Drawing.Point(67, 64);
+            this.textboxSpeed.Name = "textboxSpeed";
+            this.textboxSpeed.Size = new System.Drawing.Size(100, 20);
+            this.textboxSpeed.TabIndex = 0;
+            this.textboxSpeed.TextChanged += new System.EventHandler(this.Speed_TextChanged);
             // 
             // Reset_Stage
             // 
@@ -345,7 +345,7 @@
         private System.Windows.Forms.Button buttonRun;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button X_move;
-        private System.Windows.Forms.TextBox inc;
+        private System.Windows.Forms.TextBox textboxInc;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button X_move_neg;
         private System.Windows.Forms.Button Y_move_neg;
@@ -355,7 +355,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.TextBox Speed;
+        private System.Windows.Forms.TextBox textboxSpeed;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button Reset_Stage;
         private System.Windows.Forms.GroupBox groupBox2;

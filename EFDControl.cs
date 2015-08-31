@@ -8,7 +8,7 @@ namespace Stage_GUI
 {
     public class EFDControl
     {
-        private SerialPort EFDPort;
+        public SerialPort EFDPort;
         public EFDControl(string name)
         {
             try
@@ -51,7 +51,7 @@ namespace Stage_GUI
         {
             if (EFDPort == null || !EFDPort.IsOpen)
             {
-                Form1.LogLine("EFD Port closed");
+                Form1.LogLine("EFD Port closed already");
                 return;
             }
             EFDPort.WriteLine("0");

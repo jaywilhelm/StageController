@@ -87,6 +87,9 @@ namespace Stage_GUI
         {
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             InitializeComponent();
+            textboxInc.Text = "1";
+            textboxSpeed.Text = "1";
+            openFileDialog1.FileName = "test.txt";
             string[] names = SerialPort.GetPortNames();
             /*comboBoxStagePorts.Items.Add("COM1");//Debug
             comboBoxStagePorts.Items.Add("COM2");//Debug
@@ -168,19 +171,29 @@ namespace Stage_GUI
             EFDControl efd = new EFDControl(EFDPortName);
             efd.Disable();
             string COM = myData.StageName;
-            SerialPort stage=null;
-            try
+            SerialPort stage = null;
+            if (COM != EFDPortName)
             {
-                 stage = new System.IO.Ports.SerialPort(COM, 115200, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
-
-                // Open Serial Port  
-                stage.Open();
-                LogLine("Stage Port Created.... Opening Port " + COM);
+                try
+                {
+                    stage = new System.IO.Ports.SerialPort(COM, 115200, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
+                    // Open Serial Port  
+                    stage.Open();
+                    LogLine("Stage Port Created.... Opening Port " + COM);
+                }
+                catch (Exception err)
+                {
+                    LogLine("Stage Port failed to open " + COM + " " + err.Message);
+                    goto threadDone;
+                }
             }
-            catch(Exception err)
+            else
             {
-                LogLine("Stage Port failed to open " + COM + " "+err.Message);
-                goto threadDone;
+                //debug case
+                stage = efd.EFDPort;
+                stage.Close();
+                stage.BaudRate = 115200;
+                stage.Open();
             }
             // Directory Path  
             //string Name = File_name.Text;
@@ -208,10 +221,15 @@ namespace Stage_GUI
             {          
                 string line;
                 string[] data;
-
-                while ((line = readFile.ReadLine()) != null)
+                line = readFile.ReadLine();
+                if(line == null)
                 {
-                    LogLine(line);
+                    LogLine("No more lines");
+                    goto threadDone;
+                }
+                else
+                {
+                    LogLine("Read: "+line);
                     data = line.Split(',');
                     if(data.Length < 5)
                     {
@@ -236,13 +254,15 @@ namespace Stage_GUI
                     
                     // Generate Speed Command  
                     string Speed_CMD = "2HS X=" + speed + "\r";
-                    stage.Write(Speed_CMD);
+                    LogLine(Speed_CMD);
+                    stage.Write(Speed_CMD); 
                     string Speed_line = ReadLine(stage);
                     // Ensure Command was successfull
                     //Thread.Sleep(20);
 
                     // Generate Z-Stage Command
                     string Z_CMD = "1HM Z=" + z_pos + "\r";
+                    LogLine(Z_CMD);
                     stage.Write(Z_CMD);
                     string Z_line = ReadLine(stage);
                     // Ensure Command was Successfull 
@@ -255,18 +275,71 @@ namespace Stage_GUI
 
                     // Generate X/Y-Stage Command
                     string XY_CMD = "2HM X=" + x_pos + " Y=" + y_pos + "\r";
+                    double x_high_t, x_low_t;
+                    double y_high_t, y_low_t;
+
+                    x_high_t = Convert.ToDouble(x_pos);
+                    x_low_t = x_high_t;
+                    x_high_t = x_high_t + 0.3;
+
+                    y_high_t = Convert.ToDouble(y_pos);
+                    y_low_t = y_high_t;
+                    y_high_t = y_high_t + 0.3;
+
+                    LogLine(XY_CMD);
                     stage.Write(XY_CMD);
                     string XY_line = ReadLine(stage);
+                    int deadman = 20000;
+                    while (deadman>0)
+                    {
+                        // Request XY-position
+                        string xy_request = "2HW X Y\r";
+                        stage.Write(xy_request);
+
+                        // Read XY-position
+                        string msg = ReadLine(stage);// stage.ReadLine();
+                        //:A xx.x,yy.y
+                        msg=msg.Remove(0, 3);
+                        string[] items = msg.Split(',');
+                        if(items.Length < 2)
+                        {
+                            LogLine("bad xy read");
+                            goto threadDone;
+                        }
+                        double xd = Convert.ToDouble(items[0]);
+                        double yd = Convert.ToDouble(items[0]);
+                        xd /= 10;
+                        yd /= 10;
+                        if (xd <= x_high_t && xd >= x_low_t && yd <= y_high_t && yd >= y_low_t)
+                        {
+                            LogLine("Done moving XY");
+                            break;
+                        }
+                        else
+                        {
+                            LogLine("X->"+xd.ToString()+" Y->"+yd.ToString());
+                        }
+                        //MessageBox.Show(msg);
+                        deadman--;
+                        Thread.Sleep(1);
+                    }
+                    if(deadman <= 0)
+                    {
+                        LogLine("Deadman timeout");
+                        goto threadDone;
+                    }
                     // Ensure Command was Successfull
                     //Thread.Sleep(1000);
                     //efd.Disable();
                 }                
             }
-            threadDone:
+threadDone:
             if(stage != null)
                 stage.Close(); // Close COM Port 
             if (efd != null)
+            {
                 efd.Shutdown();
+            }
             e.Cancel = true;
         }
 
@@ -329,7 +402,7 @@ namespace Stage_GUI
                 {
                     int newb = stage.ReadByte();
                     Console.WriteLine("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
-                    if (newb == 0x03)
+                    if (newb == 0x03 || newb == 0x0A)
                         break;
                     newline.Insert(newline.Length, System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
                 }
@@ -370,7 +443,7 @@ namespace Stage_GUI
                 return;
             }
             // Speed Command
-            string Speed_desired = Speed.Text;
+            string Speed_desired = textboxSpeed.Text;
             string Speed_CMD = "2HS X="+Speed_desired+"\r";
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
@@ -378,7 +451,7 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
             
             // X+ Command
-            string tempinc = inc.Text;
+            string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
             int_inc *= 10;
             string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
@@ -390,7 +463,6 @@ namespace Stage_GUI
 
             // Close COM Port
             stage.Close();  
-
         }
 
         // Manual X+ Movement
@@ -413,7 +485,7 @@ namespace Stage_GUI
                 return;
             }
             // Speed Command
-            string Speed_desired = Speed.Text;
+            string Speed_desired = textboxSpeed.Text;
             string Speed_CMD = "2HS X=" + Speed_desired + "\r";
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
@@ -421,7 +493,7 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // X- Command
-            string tempinc = inc.Text;
+            string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
             int_inc *= 10;
             string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
@@ -457,7 +529,7 @@ namespace Stage_GUI
                 return;
             }
             // Speed Command
-            string Speed_desired = Speed.Text;
+            string Speed_desired = textboxSpeed.Text;
             string Speed_CMD = "2HS Y=" + Speed_desired + "\r";
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
@@ -465,7 +537,7 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Y- Command
-            string tempinc = inc.Text;
+            string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
             int_inc *= 10;
             string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
@@ -501,7 +573,7 @@ namespace Stage_GUI
                 return;
             }
             // Speed Command
-            string Speed_desired = Speed.Text;
+            string Speed_desired = textboxSpeed.Text;
             string Speed_CMD = "2HS Y="+Speed_desired+"\r";
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
@@ -509,7 +581,7 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Y+ Command
-            string tempinc = inc.Text;
+            string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
             int_inc *= 10;
             string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
@@ -544,7 +616,7 @@ namespace Stage_GUI
                 return;
             }
             // Speed Command
-            string Speed_desired = Speed.Text;
+            string Speed_desired = textboxSpeed.Text;
             string Speed_CMD = "1HS Z=" + Speed_desired + "\r";
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
@@ -552,7 +624,7 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Z+ Command
-            string tempinc = inc.Text;
+            string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
             int_inc *= 10;
             string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
@@ -588,7 +660,7 @@ namespace Stage_GUI
                 return;
             }
             // Speed Command
-            string Speed_desired = Speed.Text;
+            string Speed_desired = textboxSpeed.Text;
             string Speed_CMD = "1HS Z=" + Speed_desired + "\r";
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
@@ -596,7 +668,7 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Z- Command
-            string tempinc = inc.Text;
+            string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
             int_inc *= 10;
             string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
@@ -674,8 +746,6 @@ namespace Stage_GUI
             Thread.Sleep(500);
 
             stage.Close();
-
-
         }
 
 
@@ -722,7 +792,6 @@ namespace Stage_GUI
 
             // Close Serial Port
             stage.Close();
-
         }
 
         private void button3_Click(object sender, EventArgs e)
