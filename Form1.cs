@@ -378,7 +378,10 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
             
             // X+ Command
-            string INC = inc.Text; // Increment to move by (microns)
+            string tempinc = inc.Text;
+            UInt32 int_inc = Convert.ToUInt32(tempinc);
+            int_inc *= 10;
+            string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
             string XY_CMD = "2HR X="+INC+" Y=0\r";
             Console.WriteLine(XY_CMD);
             stage.Write(XY_CMD);
@@ -418,7 +421,10 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // X- Command
-            string INC = inc.Text; // Increment to move by (microns)
+            string tempinc = inc.Text;
+            UInt32 int_inc = Convert.ToUInt32(tempinc);
+            int_inc *= 10;
+            string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
             string XY_CMD = "2HR X=-"+INC+" Y=0\r";
             Console.WriteLine(XY_CMD);
             stage.Write(XY_CMD);
@@ -459,7 +465,10 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Y- Command
-            string INC = inc.Text; // Increment to move by (microns)
+            string tempinc = inc.Text;
+            UInt32 int_inc = Convert.ToUInt32(tempinc);
+            int_inc *= 10;
+            string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
             string XY_CMD = "2HR X=0 Y=-"+INC+"\r";
             Console.WriteLine(XY_CMD);
             stage.Write(XY_CMD);
@@ -500,7 +509,10 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Y+ Command
-            string INC = inc.Text; // Increment to move by (microns)
+            string tempinc = inc.Text;
+            UInt32 int_inc = Convert.ToUInt32(tempinc);
+            int_inc *= 10;
+            string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
             string XY_CMD = "2HR X=0 Y="+INC+"\r";
             Console.WriteLine(XY_CMD);
             stage.Write(XY_CMD);
@@ -540,7 +552,10 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Z+ Command
-            string INC = inc.Text; // Increment to move by (microns)
+            string tempinc = inc.Text;
+            UInt32 int_inc = Convert.ToUInt32(tempinc);
+            int_inc *= 10;
+            string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
             string Z_CMD = "1HR Z="+INC+"\r";
             Console.WriteLine(Z_CMD);
             stage.Write(Z_CMD);
@@ -581,7 +596,10 @@ namespace Stage_GUI
             Thread.Sleep(20); // Pause 
 
             // Z- Command
-            string INC = inc.Text; // Increment to move by (microns)
+            string tempinc = inc.Text;
+            UInt32 int_inc = Convert.ToUInt32(tempinc);
+            int_inc *= 10;
+            string INC = int_inc.ToString();//inc.Text; // Increment to move by (microns)
             string Z_CMD = "1HR Z=-"+INC+"\r";
             Console.WriteLine(Z_CMD);
             stage.Write(Z_CMD);
