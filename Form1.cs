@@ -243,9 +243,9 @@ namespace Stage_GUI
                     UInt32 iSpeed   = Convert.ToUInt32(data[3]);
                     UInt32 iEFD     = Convert.ToUInt32(data[4]);
 
-                    iXPos *= scaler;
+                    /*iXPos *= scaler;
                     iYPos *= scaler;
-                    iZPos *= scaler;
+                    iZPos *= scaler;*/
 
                     string x_pos = iXPos.ToString();
                     string y_pos = iYPos.ToString();
@@ -278,13 +278,14 @@ namespace Stage_GUI
                     double x_high_t, x_low_t;
                     double y_high_t, y_low_t;
 
+                    double fudge = 3;
                     x_high_t = Convert.ToDouble(x_pos);
                     x_low_t = x_high_t;
-                    x_high_t = x_high_t + 0.3;
+                    x_high_t = x_high_t + fudge;
 
                     y_high_t = Convert.ToDouble(y_pos);
                     y_low_t = y_high_t;
-                    y_high_t = y_high_t + 0.3;
+                    y_high_t = y_high_t + fudge;
 
                     LogLine(XY_CMD);
                     stage.Write(XY_CMD);
@@ -298,18 +299,22 @@ namespace Stage_GUI
 
                         // Read XY-position
                         string msg = ReadLine(stage);// stage.ReadLine();
+                        if (msg.Length == 0 || msg.Length <= 4)
+                            continue;
+                        //msg = ReadLine(stage);// stage.ReadLine();
+
                         //:A xx.x,yy.y
                         msg=msg.Remove(0, 3);
-                        string[] items = msg.Split(',');
+                        string[] items = msg.Split(' ');
                         if(items.Length < 2)
                         {
                             LogLine("bad xy read");
                             goto threadDone;
                         }
                         double xd = Convert.ToDouble(items[0]);
-                        double yd = Convert.ToDouble(items[0]);
-                        xd /= 10;
-                        yd /= 10;
+                        double yd = Convert.ToDouble(items[1]);
+                        //xd /= 10;
+                        //yd /= 10;
                         if (xd <= x_high_t && xd >= x_low_t && yd <= y_high_t && yd >= y_low_t)
                         {
                             LogLine("Done moving XY");
@@ -404,7 +409,8 @@ threadDone:
                     Console.WriteLine("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
                     if (newb == 0x03 || newb == 0x0A)
                         break;
-                    newline.Insert(newline.Length, System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
+                    string newdata = System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb });
+                    newline += newdata;
                 }
                 return newline;
             }
