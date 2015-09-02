@@ -15,7 +15,7 @@ using System.IO;
 
 namespace Stage_GUI
 {
-    public partial class Form1 : Form
+    public partial class MainGUI : Form
     {
         //work around for broken .NET 3.5
         private void SetDefaultPorts()
@@ -83,7 +83,7 @@ namespace Stage_GUI
             sw.Close();
         }
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        public Form1()
+        public MainGUI()
         {
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             InitializeComponent();
@@ -101,8 +101,8 @@ namespace Stage_GUI
             string selectedStage = GetPort("StagePort");
             string selectedEFD = GetPort("EFDPort");
 
-            Form1.FillComboBoxNames(names, comboBoxStagePorts, selectedStage);
-            Form1.FillComboBoxNames(names, comboBoxEFDPortNames, selectedEFD);
+            MainGUI.FillComboBoxNames(names, comboBoxStagePorts, selectedStage);
+            MainGUI.FillComboBoxNames(names, comboBoxEFDPortNames, selectedEFD);
             ShowConsole.ShowConsoleWindow();
         }
         public static void FillComboBoxNames(string[] names, ComboBox cb, string selected)
@@ -170,48 +170,22 @@ namespace Stage_GUI
             string EFDPortName = myData.EFDName;
             EFDControl efd = new EFDControl(EFDPortName);
             efd.Disable();
+            StageController stage;
+
             string COM = myData.StageName;
-            SerialPort stage = null;
-            if (COM != EFDPortName)
-            {
-                try
-                {
-                    stage = new System.IO.Ports.SerialPort(COM, 115200, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
-                    // Open Serial Port  
-                    stage.Open();
-                    LogLine("Stage Port Created.... Opening Port " + COM);
-                }
-                catch (Exception err)
-                {
-                    LogLine("Stage Port failed to open " + COM + " " + err.Message);
-                    goto threadDone;
-                }
-            }
+            if (COM != EFDPortName)//ugly hack for testing with 1 device
+                stage = new StageController(COM);
             else
             {
-                //debug case
-                stage = efd.EFDPort;
-                stage.Close();
-                stage.BaudRate = 115200;
-                stage.Open();
+                stage = new StageController();
+                stage.sp = efd.EFDPort;
             }
+            //SerialPort stage = null;
             // Directory Path  
             //string Name = File_name.Text;
             string path = openFileDialog1.FileName;
 
-
-            // Bring Stages to Origin (0)
-            // Reset Z-Stage
-            string z_origin = "1HM Z=0\r";
-            stage.Write(z_origin);
-            string z_verification = ReadLine(stage);
-            Console.WriteLine(z_verification + "\n");
-
-            // Reset X/Y-Stage
-            string xy_origin = "2HM X=0 Y=0\r";
-            stage.Write(xy_origin);
-            string xy_verification = ReadLine(stage);
-            Console.WriteLine(xy_verification + "\n");
+            stage.ResetXYZ();
 
             LogLine("Begin Program");
             Thread.Sleep(2000);
@@ -236,103 +210,25 @@ namespace Stage_GUI
                         LogLine("Not enough parameters");
                         goto threadDone;
                     }
-                    const int scaler = 10;
-                    UInt32 iXPos    = Convert.ToUInt32(data[0]);
-                    UInt32 iYPos    = Convert.ToUInt32(data[1]);
-                    UInt32 iZPos    = Convert.ToUInt32(data[2]);
-                    UInt32 iSpeed   = Convert.ToUInt32(data[3]);
-                    UInt32 iEFD     = Convert.ToUInt32(data[4]);
+                    const int scaler = 1;
+                    Int32 iXPos = Convert.ToInt32(data[0]);
+                    Int32 iYPos = Convert.ToInt32(data[1]);
+                    Int32 iZPos = Convert.ToInt32(data[2]);
+                    Int32 iSpeed = Convert.ToInt32(data[3]);
+                    Int32 iEFD = Convert.ToInt32(data[4]);
 
-                    /*iXPos *= scaler;
+                    iXPos *= scaler;
                     iYPos *= scaler;
-                    iZPos *= scaler;*/
+                    iZPos *= scaler;
 
-                    string x_pos = iXPos.ToString();
-                    string y_pos = iYPos.ToString();
-                    string z_pos = iZPos.ToString();
-                    string speed = iSpeed.ToString();
-                    
-                    // Generate Speed Command  
-                    string Speed_CMD = "2HS X=" + speed + "\r";
-                    LogLine(Speed_CMD);
-                    stage.Write(Speed_CMD); 
-                    string Speed_line = ReadLine(stage);
-                    // Ensure Command was successfull
-                    //Thread.Sleep(20);
-
-                    // Generate Z-Stage Command
-                    string Z_CMD = "1HM Z=" + z_pos + "\r";
-                    LogLine(Z_CMD);
-                    stage.Write(Z_CMD);
-                    string Z_line = ReadLine(stage);
-                    // Ensure Command was Successfull 
-                    //Thread.Sleep(1000);
-
+                    stage.SetSpeed(StageController.StageAxis.Z, new Int32[] { iSpeed });
+                    stage.Move(StageController.StageAxis.Z, new Int32[] { iZPos });
                     if (iEFD == 1)
                         efd.Enable();
                     else
                         efd.Disable();
+                    stage.Move(StageController.StageAxis.XY, new Int32[] { iXPos, iYPos });
 
-                    // Generate X/Y-Stage Command
-                    string XY_CMD = "2HM X=" + x_pos + " Y=" + y_pos + "\r";
-                    double x_high_t, x_low_t;
-                    double y_high_t, y_low_t;
-
-                    double fudge = 3;
-                    x_high_t = Convert.ToDouble(x_pos);
-                    x_low_t = x_high_t;
-                    x_high_t = x_high_t + fudge;
-
-                    y_high_t = Convert.ToDouble(y_pos);
-                    y_low_t = y_high_t;
-                    y_high_t = y_high_t + fudge;
-
-                    LogLine(XY_CMD);
-                    stage.Write(XY_CMD);
-                    string XY_line = ReadLine(stage);
-                    int deadman = 20000;
-                    while (deadman>0)
-                    {
-                        // Request XY-position
-                        string xy_request = "2HW X Y\r";
-                        stage.Write(xy_request);
-
-                        // Read XY-position
-                        string msg = ReadLine(stage);// stage.ReadLine();
-                        if (msg.Length == 0 || msg.Length <= 4)
-                            continue;
-                        //msg = ReadLine(stage);// stage.ReadLine();
-
-                        //:A xx.x,yy.y
-                        msg=msg.Remove(0, 3);
-                        string[] items = msg.Split(' ');
-                        if(items.Length < 2)
-                        {
-                            LogLine("bad xy read");
-                            goto threadDone;
-                        }
-                        double xd = Convert.ToDouble(items[0]);
-                        double yd = Convert.ToDouble(items[1]);
-                        //xd /= 10;
-                        //yd /= 10;
-                        if (xd <= x_high_t && xd >= x_low_t && yd <= y_high_t && yd >= y_low_t)
-                        {
-                            LogLine("Done moving XY");
-                            break;
-                        }
-                        else
-                        {
-                            LogLine("X->"+xd.ToString()+" Y->"+yd.ToString());
-                        }
-                        //MessageBox.Show(msg);
-                        deadman--;
-                        Thread.Sleep(1);
-                    }
-                    if(deadman <= 0)
-                    {
-                        LogLine("Deadman timeout");
-                        goto threadDone;
-                    }
                     // Ensure Command was Successfull
                     //Thread.Sleep(1000);
                     //efd.Disable();
@@ -340,7 +236,7 @@ namespace Stage_GUI
             }
 threadDone:
             if(stage != null)
-                stage.Close(); // Close COM Port 
+                stage.Shutdown(); // Close COM Port 
             if (efd != null)
             {
                 efd.Shutdown();
@@ -409,8 +305,7 @@ threadDone:
                     Console.WriteLine("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
                     if (newb == 0x03 || newb == 0x0A)
                         break;
-                    string newdata = System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb });
-                    newline += newdata;
+                    newline.Insert(newline.Length, System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
                 }
                 return newline;
             }

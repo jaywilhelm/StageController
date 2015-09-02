@@ -1,6 +1,6 @@
 ﻿namespace Stage_GUI
 {
-    partial class Form1
+    partial class MainGUI
     {
         /// <summary>
         /// Required designer variable.
