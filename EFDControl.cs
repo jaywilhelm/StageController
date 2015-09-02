@@ -53,7 +53,8 @@ namespace Stage_GUI
                     Console.WriteLine("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
                     if (newb == 0x03 || newb == 0x0A || newb == 'A')
                         break;
-                    newline.Insert(newline.Length, System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
+                    string newdata = System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb });
+                    newline += newdata;
                 }
                 return newline;
             }
@@ -91,8 +92,10 @@ namespace Stage_GUI
 
             MainGUI.LogLine(command);
             if (sp.IsOpen)
-                sp.WriteLine(command);
-
+            {
+                string old = sp.ReadExisting();
+                sp.Write(command + "\r");
+            }
 
             string result = WaitForA(standardTimeout);
             return 0;
