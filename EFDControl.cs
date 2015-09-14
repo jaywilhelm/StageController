@@ -73,6 +73,31 @@ namespace Stage_GUI
                 return null;
             }
         }
+        public string WaitForNewLine(int timeout)
+        {
+            sp.ReadTimeout = timeout;
+            try
+            {
+                string newline = "";
+                while (true)
+                {
+                    int newb = sp.ReadByte();
+                    Console.Write("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb })+"\t");
+                    if (newb == 0x03)
+                        continue;
+                    if (newb == 0x0A)
+                        break;
+                    string newdata = System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb });
+                    newline += newdata;
+                }
+                return newline;
+            }
+            catch (Exception e)
+            {
+                MainGUI.LogLine("Serial Port error:" + e.Message);
+                return null;
+            }
+        }
         public enum StageAxis
         {
             Z,
@@ -84,6 +109,47 @@ namespace Stage_GUI
                 return "1";
             else
                 return "2";
+        }
+        public Int32[] GetStagePosition(StageAxis axis)
+        {
+            string command = GetStageString(axis);
+            string precision = "H";
+            command += precision + " ";
+
+            string whichaxis = "";
+            if (axis == StageAxis.Z)
+                whichaxis = "Z";
+            else if (axis == StageAxis.XY)
+                whichaxis = "X Y";
+
+            command += whichaxis;
+
+            MainGUI.LogLine(command);
+            if (sp.IsOpen)
+            {
+                string old = sp.ReadExisting();
+                sp.Write(command + "\r");
+            }
+
+            string result = WaitForNewLine(standardTimeout);
+            Int32[] retInt = null;
+            if (axis == StageAxis.Z)
+            {
+                int zpos = 0;
+                string zpart = result.Substring(2);
+                zpos = Convert.ToInt32(zpart);
+                retInt = new Int32[] { zpos };
+            }
+            else if (axis == StageAxis.XY)
+            {
+                int xpos=0,ypos = 0;
+                string zpart = result.Substring(2);//remove :A_
+                string[] nums = zpart.Split(' ');
+                xpos = Convert.ToInt32(nums[0]);
+                ypos = Convert.ToInt32(nums[1]);
+                retInt = new Int32[] { xpos, ypos };
+            }
+            return retInt;
         }
         public int Move(StageAxis axis,Int32[] ammount)
         {
@@ -106,7 +172,8 @@ namespace Stage_GUI
                 sp.Write(command + "\r");
             }
 
-            string result = WaitForA(standardTimeout);
+            string result = WaitForNewLine(standardTimeout);
+            MainGUI.LogLine(result);
             return 0;
         }
         public int ResetXYZ()
@@ -124,6 +191,26 @@ namespace Stage_GUI
         }*/
         public int SetSpeed(StageAxis axis, Int32[] speeds)
         {
+            string command = GetStageString(axis);
+            string precision = "H";
+
+            string numbers = "";
+            if (axis == StageAxis.Z)
+                numbers = "Z=" + speeds[0].ToString();
+            else if (axis == StageAxis.XY)
+                numbers = "X=" + speeds[0].ToString() + " Y=" + speeds[1].ToString();
+
+            command += precision + "S " + numbers;
+
+            MainGUI.LogLine(command);
+            if (sp.IsOpen)
+            {
+                string old = sp.ReadExisting();
+                sp.Write(command + "\r");
+            }
+
+            string result = WaitForNewLine(standardTimeout);
+            MainGUI.LogLine(result);
             return 0;
         }
     }

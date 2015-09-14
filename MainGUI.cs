@@ -223,12 +223,40 @@ namespace Stage_GUI
 
                     stage.SetSpeed(StageController.StageAxis.Z, new Int32[] { iSpeed });
                     stage.Move(StageController.StageAxis.Z, new Int32[] { iZPos });
+                    int ztp, ztn;
+                    ztp = iZPos + 10;
+                    ztn = iZPos - 10;
+                    while (!worker.CancellationPending)
+                    {
+                        Int32[] zpos = stage.GetStagePosition(StageController.StageAxis.Z);
+                        LogLine("Z " + zpos[0].ToString());
+
+                        Int32 zloc = zpos[0];
+                        if (zloc >= ztp && zloc < ztn)
+                            break;
+                    }
                     if (iEFD == 1)
                         efd.Enable();
                     else
                         efd.Disable();
                     stage.Move(StageController.StageAxis.XY, new Int32[] { iXPos, iYPos });
+                    int xtp, xtn,ytp,ytn;
+                    xtp = iXPos + 10;
+                    xtn = iXPos - 10;
+                    ytp = iYPos + 10;
+                    ytn = iYPos - 10;
+                    while (!worker.CancellationPending)
+                    {
+                        Int32[] xypos = stage.GetStagePosition(StageController.StageAxis.Z);
+                        LogLine("XY " + xypos[0].ToString() + " " + xypos[1].ToString());
+                        Int32 xloc = xypos[0];
+                        Int32 yloc = xypos[1];
 
+                        if (xloc >= xtp && xloc < xtn
+                            &&
+                            yloc >= ytp && yloc < ytn)
+                            break;
+                    }
                     // Ensure Command was Successfull
                     //Thread.Sleep(1000);
                     //efd.Disable();
@@ -669,9 +697,16 @@ threadDone:
         }
         private void buttonGetXY_Click(object sender, EventArgs e)
         {
+            StageController stage = new StageController(comboBoxStagePorts.Text);
+            int[] xy = stage.GetStagePosition(StageController.StageAxis.XY);
+            string msg = "X = " + xy[0].ToString() + " Y = " + xy[1].ToString();
+            MessageBox.Show(msg);
+            stage.Shutdown();
+            LogLine(msg);
+            return;
             // Define Serial Port  
             //string COM = inputCOM.Text;
-            string COM = comboBoxStagePorts.Text;
+            /*string COM = comboBoxStagePorts.Text;
             System.IO.Ports.SerialPort stage = new System.IO.Ports.SerialPort(COM, 115200, System.IO.Ports.Parity.None, 8, System.IO.Ports.StopBits.One);
 
             // Open Serial Port  
@@ -693,7 +728,7 @@ threadDone:
             MessageBox.Show(msg);
 
             // Close Serial Port
-            stage.Close();
+            stage.Close();*/
         }
 
         private void button3_Click(object sender, EventArgs e)
