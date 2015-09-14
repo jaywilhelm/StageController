@@ -134,7 +134,8 @@ namespace Stage_GUI
             string result = WaitForNewLine(standardTimeout);
             if (result.Length <= 3)
                 result = WaitForNewLine(standardTimeout);
-
+            if (result == "Unknown")
+                return null;
             double[] retInt = null;
             if (axis == StageAxis.Z)
             {

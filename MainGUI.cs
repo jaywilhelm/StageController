@@ -699,7 +699,7 @@ threadDone:
         {
             StageController stage = new StageController(comboBoxStagePorts.Text);
             double[] xy = stage.GetStagePosition(StageController.StageAxis.XY);
-            string msg = "X = " + xy[0].ToString() + " Y = " + xy[1].ToString();
+            string msg = "X = " + xy[0].ToString() + " Y = " + xy[1].ToString() +"H-um";
             MessageBox.Show(msg);
             stage.Shutdown();
             LogLine(msg);
@@ -790,6 +790,14 @@ threadDone:
             Thread.Sleep(1000);
             LogLine(sp.ReadExisting());
             sp.Close();
+        }
+
+        private void buttonEFDOn_Click(object sender, EventArgs e)
+        {
+            EFDControl efd = new EFDControl(comboBoxEFDPortNames.Text);
+            efd.Enable();
+            Thread.Sleep(1000);
+            efd.Shutdown();
         }
 
     }
