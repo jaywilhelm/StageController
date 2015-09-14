@@ -186,7 +186,7 @@ namespace Stage_GUI
             string path = openFileDialog1.FileName;
 
             stage.ResetXYZ();
-
+            stage.GetStatus();
             LogLine("Begin Program");
             Thread.Sleep(2000);
 
@@ -349,8 +349,8 @@ threadDone:
             Console.WriteLine(Speed_CMD);
             stage.Write(Speed_CMD);
             string Speed_line = ReadLine(stage);
-            Thread.Sleep(20); // Pause 
-            
+            Thread.Sleep(150); // Pause 
+            LogLine("X " + stage.ReadExisting());
             // X+ Command
             string tempinc = textboxInc.Text;
             UInt32 int_inc = Convert.ToUInt32(tempinc);
@@ -361,6 +361,7 @@ threadDone:
             stage.Write(XY_CMD);
             string XY_line = ReadLine(stage);
             Thread.Sleep(20); // Pause 
+            LogLine("Done X+");
 
             // Close COM Port
             stage.Close();  
@@ -743,6 +744,17 @@ threadDone:
         private void buttonGetXY_Click()
         {
 
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            SerialPort sp = new SerialPort("COM13", 115200);
+            sp.Open();
+            sp.Write(textBoxSend.Text + "\r");
+            LogLine(sp.ReadExisting());
+            Thread.Sleep(1000);
+            LogLine(sp.ReadExisting());
+            sp.Close();
         }
 
     }

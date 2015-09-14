@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 //using System.Linq;
 using System.Text;
-//using System.Threading.Tasks;
+using System.Threading;
 using System.IO.Ports;
 namespace Stage_GUI
 {
@@ -19,7 +19,7 @@ namespace Stage_GUI
         {
             try
             {
-                sp = new SerialPort(name, 9600);
+                sp = new SerialPort(name, 115200);
                 sp.Open();
             }
             catch (Exception e)
@@ -41,6 +41,13 @@ namespace Stage_GUI
                 if (sp.IsOpen)
                     sp.Close();
         }
+        public string GetStatus()
+        {
+            sp.Write("1/\r");
+            Thread.Sleep(1000);
+            string ret = sp.ReadExisting();
+            return ret;
+        }
         public string WaitForA(int timeout)
         {
             sp.ReadTimeout = timeout;
@@ -51,7 +58,9 @@ namespace Stage_GUI
                 {
                     int newb = sp.ReadByte();
                     Console.WriteLine("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb }));
-                    if (newb == 0x03 || newb == 0x0A || newb == 'A')
+                    if (newb == 0x03)
+                        continue;
+                    if(newb == 0x0A || newb == 'A')
                         break;
                     string newdata = System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb });
                     newline += newdata;
