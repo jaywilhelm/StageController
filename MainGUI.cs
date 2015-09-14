@@ -228,11 +228,11 @@ namespace Stage_GUI
                     ztn = iZPos - 10;
                     while (!worker.CancellationPending)
                     {
-                        Int32[] zpos = stage.GetStagePosition(StageController.StageAxis.Z);
+                        double[] zpos = stage.GetStagePosition(StageController.StageAxis.Z);
                         LogLine("Z " + zpos[0].ToString());
 
-                        Int32 zloc = zpos[0];
-                        if (zloc >= ztp && zloc < ztn)
+                        double zloc = zpos[0];
+                        if (zloc <= ztp && zloc > ztn)
                             break;
                     }
                     if (iEFD == 1)
@@ -247,14 +247,14 @@ namespace Stage_GUI
                     ytn = iYPos - 10;
                     while (!worker.CancellationPending)
                     {
-                        Int32[] xypos = stage.GetStagePosition(StageController.StageAxis.Z);
+                        double[] xypos = stage.GetStagePosition(StageController.StageAxis.XY);
                         LogLine("XY " + xypos[0].ToString() + " " + xypos[1].ToString());
-                        Int32 xloc = xypos[0];
-                        Int32 yloc = xypos[1];
+                        double xloc = xypos[0];
+                        double yloc = xypos[1];
 
-                        if (xloc >= xtp && xloc < xtn
+                        if (xloc <= xtp && xloc > xtn
                             &&
-                            yloc >= ytp && yloc < ytn)
+                            yloc <= ytp && yloc > ytn)
                             break;
                     }
                     // Ensure Command was Successfull
@@ -698,7 +698,7 @@ threadDone:
         private void buttonGetXY_Click(object sender, EventArgs e)
         {
             StageController stage = new StageController(comboBoxStagePorts.Text);
-            int[] xy = stage.GetStagePosition(StageController.StageAxis.XY);
+            double[] xy = stage.GetStagePosition(StageController.StageAxis.XY);
             string msg = "X = " + xy[0].ToString() + " Y = " + xy[1].ToString();
             MessageBox.Show(msg);
             stage.Shutdown();

@@ -82,8 +82,8 @@ namespace Stage_GUI
                 while (true)
                 {
                     int newb = sp.ReadByte();
-                    Console.Write("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb })+"\t");
-                    if (newb == 0x03)
+                    //Console.Write("Rx: " + newb.ToString("X2") + "\t " + newb.ToString() + "\t" + System.Text.Encoding.UTF8.GetString(new byte[] { (byte)newb })+"\t");
+                    if (newb == 0x03 || newb == '\r')
                         continue;
                     if (newb == 0x0A)
                         break;
@@ -110,11 +110,11 @@ namespace Stage_GUI
             else
                 return "2";
         }
-        public Int32[] GetStagePosition(StageAxis axis)
+        public double[] GetStagePosition(StageAxis axis)
         {
             string command = GetStageString(axis);
             string precision = "H";
-            command += precision + " ";
+            command += precision + "W ";
 
             string whichaxis = "";
             if (axis == StageAxis.Z)
@@ -132,22 +132,25 @@ namespace Stage_GUI
             }
 
             string result = WaitForNewLine(standardTimeout);
-            Int32[] retInt = null;
+            if (result.Length <= 3)
+                result = WaitForNewLine(standardTimeout);
+
+            double[] retInt = null;
             if (axis == StageAxis.Z)
             {
-                int zpos = 0;
+                double zpos = 0;
                 string zpart = result.Substring(2);
-                zpos = Convert.ToInt32(zpart);
-                retInt = new Int32[] { zpos };
+                zpos = Convert.ToDouble(zpart);
+                retInt = new double[] { zpos };
             }
             else if (axis == StageAxis.XY)
             {
-                int xpos=0,ypos = 0;
-                string zpart = result.Substring(2);//remove :A_
+                double xpos = 0, ypos = 0;
+                string zpart = result.Substring(3);//remove :A_
                 string[] nums = zpart.Split(' ');
-                xpos = Convert.ToInt32(nums[0]);
-                ypos = Convert.ToInt32(nums[1]);
-                retInt = new Int32[] { xpos, ypos };
+                xpos = Convert.ToDouble(nums[0]);
+                ypos = Convert.ToDouble(nums[1]);
+                retInt = new double[] { xpos, ypos };
             }
             return retInt;
         }
