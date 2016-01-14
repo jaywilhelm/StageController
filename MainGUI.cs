@@ -239,6 +239,7 @@ namespace Stage_GUI
                         efd.Enable();
                     else
                         efd.Disable();
+                    stage.SetSpeed(StageController.StageAxis.XY, new Int32[] { iSpeed,iSpeed });
                     stage.Move(StageController.StageAxis.XY, new Int32[] { iXPos, iYPos });
                     int xtp, xtn,ytp,ytn;
                     xtp = iXPos + 10;
